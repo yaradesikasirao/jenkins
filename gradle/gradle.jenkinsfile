@@ -1,0 +1,21 @@
+pipeline {
+    agent { label 'JAVA_17'}
+    stages {
+        stage('vcs') {
+            steps {
+                git url: 'https://github.com/spring-projects/spring-petclinic.git',
+                      branch: 'main'
+        }
+            }
+        stage('package') {
+            steps {
+                
+                sh 'gradle build'
+               
+            }
+        }
+            }
+        }
+   
+
+     
