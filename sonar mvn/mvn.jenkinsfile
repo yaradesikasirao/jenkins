@@ -1,16 +1,24 @@
 pipeline {
-    agent { label 'sonarqube' }
+    agent any
     stages {
         stage('vcs') {
-            git url: 'https://github.com/yaradesikasirao/spring-petclinic.git'
-            branch: 'main'
+            steps {
+               git url: 'https://github.com/yaradesikasirao/spring-petclinic.git',
+                   branch: 'main'
+                   
+            }
         }
-      
+        stage('package') {
+            steps {
+                sh './mvnw package'
+            }
+        }
         stage('sonar analysis') {
             steps{
-                // performing sonarqube analysis with "withSonarQubeENV(<Name of Server configured in Jenkins>)"
-                withSonarQubeEnv('sonarqube') {
-                    sh './mvnw clean package sonar:sonar'
+                // performing sonarqube analysis with "withSonarQubeENV(SONAR_QUBE)"
+                withSonarQubeEnv('SONAR_QUBE') {
+                   
+                    sh './mvnw clean package sonar:sonar -Dsonar.organization=SONAR_PROJECT -Dsonar.projectkey=SONAR_PROJECT'
                 }
             }
         }

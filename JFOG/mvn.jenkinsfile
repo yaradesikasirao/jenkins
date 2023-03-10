@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+    stages {
+        stage('vcs') {
+             steps {
+                git url: 'https://github.com/yaradesikasirao/spring-petclinic.git',
+                branch: 'main'
+                }
+             }
+        stage('Artifactory configuration') {
+            steps {
+                rtServer (
+                    id: 'ARTIFACTORY_SERVER',
+                    url: 'https://qtthought.jfrog.io/artifactory',
+                    credentialsId:'JFROG'
+                )
+                rtMavenDeployer (
+                    id: 'MAVEN_DEPLOYER',
+                    serverId: 'ARTIFACTORY_SERVER',
+                    releaseRepo: 'maven-libs-release-local',
+                    snapshotRepo: 'maven-libs-snapshot-local'
+                )
+                rtMavenResolver (
+                    id: 'MAVEN_RESOLVER',
+                    serverId: 'ARTIFACTORY_SERVER',
+                    releaseRepo: 'maven-libs-release-local',
+                    snapshotRepo: 'maven-libs-snapshot-local'
+                )
+                
+            }
+        }
+        stage('package') {
+            steps {
+                rtMavenRun (
+                    tool: 'MAVEN_TOOL',
+                    pom: 'pom.xml',
+                    goals: 'clean install',
+                    deployerId: 'MAVEN_DEPLOYER',
+                    resolverId: 'MAVEN_RESOLVER'
+                )
+            }
+        }
+        stage('publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: 'ARTIFACTORY_SERVER'
+
+                )
+            }
+        }
+        stage('post build') {
+            steps {
+                archiveArtifacts artifacts: '**/target/spring-petclinic-3.0.0-SNAPSHOT.jar',
+                                 onlyIfSuccessful: true
+                junit testResults: '**/surefire-reports/TEST-*.xml'
+            }
+        }
+
+    
+
+}
+
+}
