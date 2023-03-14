@@ -1,0 +1,19 @@
+pipeline {
+    agent { label 'JDK_17' }
+    triggers {
+        cron( '* * * * *' )
+    }
+    stages {
+        stage('vcs') {
+            steps {
+                git url: 'https://github.com/yaradesikasirao/spring-petclinic.git',
+                branch: 'main'
+            }
+        }
+        stage('package') {
+            steps {
+                sh'./mvnw package'
+            }
+        }
+    }
+}
