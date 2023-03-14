@@ -2,11 +2,11 @@ pipeline {
     agent any
     stages {
         stage('vcs') {
-             steps {
+            steps {
                 git url: 'https://github.com/yaradesikasirao/spring-petclinic.git',
                 branch: 'main'
-                }
-             }
+            }
+        }
         stage('Artifactory configuration') {
             steps {
                 rtServer (
@@ -56,8 +56,5 @@ pipeline {
             }
         }
 
-    
-
-}
-
+    }
 }
